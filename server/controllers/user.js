@@ -1,6 +1,8 @@
 import User from "../model/user.js"
+import VerificationToken from '../model/verificationToken.js'
 import {sendError} from "../utils/helper.js"
 import jwt from 'jsonwebtoken'
+import { generateOTP } from "../utils/mail.js"
 
 export const createUser = async (req, res) => {
   const {name, email, password} = req.body
@@ -12,6 +14,13 @@ export const createUser = async (req, res) => {
     email,
     password
   })
+  const OTP = generateOTP()
+  const verificationToken = new VerificationToken({
+    owner: newUser._id,
+    token: OTP
+  })
+
+  await verificationToken.save()
   await newUser.save()
   res.send(newUser)
 }
